@@ -14,8 +14,7 @@ def generate_prompt(entry):
         return f"User: {entry['instruction']}\n\nAssistant: {entry['output']}"
 
 def make_dataset(tokenizer, data_file):
-    def tokenize(item, add_eos_token=True):
-        print('item', item)
+    def tokenize(item, add_eos_token=True):        
         result = tokenizer(
             generate_prompt(item),
             truncation=True,
@@ -72,8 +71,8 @@ def train(
     model = peft.get_peft_model(model, loraConfig)
 
     training_args = transformers.TrainingArguments(
-        per_device_train_batch_size=16, 
-        gradient_accumulation_steps=8,  
+        per_device_train_batch_size=8, 
+        gradient_accumulation_steps=4,  
         num_train_epochs=3,  
         learning_rate=1e-4, 
         fp16=True,
