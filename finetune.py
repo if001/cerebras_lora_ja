@@ -10,6 +10,7 @@ cutoff_len = 512
 
 def make_dataset(tokenizer, data_file):
     def tokenize(item, add_eos_token=True):
+        print('item', item)
         result = tokenizer(
             item,
             truncation=True,
