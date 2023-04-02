@@ -1,4 +1,5 @@
 import os
+
 import torch
 import transformers
 from fire import Fire
@@ -24,13 +25,13 @@ def generate_prompt(instruction, input=None):
 
 
 def infarence(
-        base_model: str,
+        model_name: str,
         prompt: str,
         gpu: bool = True,        
     ):
-    tokenizer = transformers.AutoTokenizer.from_pretrained(base_model)
+    tokenizer = transformers.AutoTokenizer.from_pretrained(model_name)
     model = transformers.AutoModelForCausalLM.from_pretrained(
-        base_model,
+        model_name,
         load_in_8bit=True,
         torch_dtype=torch.float16,
         device_map={"": 0},
@@ -58,11 +59,11 @@ def infarence(
     print(generated_text)
 
 def test():
-    base_model = 'cerebras/Cerebras-GPT-2.7B'
+    model_name = 'cerebras/Cerebras-GPT-2.7B'
     prompt = "Human:give me a 3 day travel plan for hawaii\n\nAssistant:"
 
     infarence(
-        base_model,
+        model_name,
         prompt
     ) 
 
