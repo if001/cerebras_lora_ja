@@ -7,27 +7,35 @@ import fire
 cutoff_len = 512
 
 
-def tokenize(tokenizer, item, add_eos_token=True):
-    result = tokenizer(
-        item,
-        truncation=True,
-        max_length=cutoff_len,
-        padding=False,
-        return_tensors=None,
-    )
 
-    if (
-        result["input_ids"][-1] != tokenizer.eos_token_id
-        and len(result["input_ids"]) < cutoff_len
-        and add_eos_token
-    ):
-        result["input_ids"].append(tokenizer.eos_token_id)
-        result["attention_mask"].append(1)
+def make_dataset(tokenizer, data_file):
+    def tokenize(item, add_eos_token=True):
+        result = tokenizer(
+            item,
+            truncation=True,
+            max_length=cutoff_len,
+            padding=False,
+            return_tensors=None,
+        )
 
-    result["labels"] = result["input_ids"].copy()
+        if (
+            result["input_ids"][-1] != tokenizer.eos_token_id
+            and len(result["input_ids"]) < cutoff_len
+            and add_eos_token
+        ):
+            result["input_ids"].append(tokenizer.eos_token_id)
+            result["attention_mask"].append(1)
 
-    return result
+        result["labels"] = result["input_ids"].copy()
 
+        return result
+    
+    dataset = datasets.load_dataset('json', data_files=data_file)
+    # train_val = dataset["train"].train_test_split(test_size=0.2, shuffle=True, seed=42)
+    train_data = train_val["train"].shuffle().map(tokenize)
+    val_data = train_val["test"].shuffle().map(tokenize)
+    # return train_val, train_data, val_data
+    return train_data, val_data
 
 def train(
         model_name: str,
@@ -36,12 +44,8 @@ def train(
         ):
     tokenizer = transformers.AutoTokenizer.from_pretrained(model_name)
     tokenizer.pad_token_id = 0
-
-    dataset = datasets.load_dataset('json', data_files=data_file)
-    train_val = dataset["train"].train_test_split(test_size=0.2, shuffle=True, seed=42)
-    train_data = train_val["train"].shuffle().map(tokenize)
-    val_data = train_val["test"].shuffle().map(tokenize)
-
+    train_data, val_data = make_dataset(tokenizer, data_file)
+  
     model = transformers.AutoModelForCausalLM.from_pretrained(
         'cerebras/Cerebras-GPT-2.7B',    
         load_in_8bit=True,
