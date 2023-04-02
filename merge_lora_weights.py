@@ -3,7 +3,7 @@ import os
 import torch
 import transformers
 from peft import PeftModel
-from fire import Fire
+import fire
 
 def merge_weights(
         base_model: str,

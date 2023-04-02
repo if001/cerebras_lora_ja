@@ -2,7 +2,7 @@ import torch
 import transformers
 import datasets
 import peft
-from fire import Fire
+import fire
 
 cutoff_len = 512
 

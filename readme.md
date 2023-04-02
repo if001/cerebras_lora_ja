@@ -1,4 +1,8 @@
 # readme
+https://huggingface.co/cerebras/Cerebras-GPT-1.3B
+
+model='cerebras/Cerebras-GPT-1.3B'
+
 
 ```python
 python finetune.py \
