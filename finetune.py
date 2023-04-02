@@ -31,10 +31,9 @@ def make_dataset(tokenizer, data_file):
         return result
     
     dataset = datasets.load_dataset('json', data_files=data_file)
-    # train_val = dataset["train"].train_test_split(test_size=0.2, shuffle=True, seed=42)
+    train_val = dataset["train"].train_test_split(test_size=0.2, shuffle=True, seed=42)
     train_data = train_val["train"].shuffle().map(tokenize)
-    val_data = train_val["test"].shuffle().map(tokenize)
-    # return train_val, train_data, val_data
+    val_data = train_val["test"].shuffle().map(tokenize)    
     return train_data, val_data
 
 def train(
