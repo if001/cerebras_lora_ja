@@ -51,7 +51,7 @@ def train(
     train_data, val_data = make_dataset(tokenizer, data_file)
   
     model = transformers.AutoModelForCausalLM.from_pretrained(
-        'cerebras/Cerebras-GPT-2.7B',    
+        model_name,        
         load_in_8bit=True,
         torch_dtype=torch.float16,
         device_map={'': 0}
