@@ -54,7 +54,7 @@ def train(
         model_name,        
         load_in_8bit=True,
         torch_dtype=torch.float16,
-        device_map={'': 0}
+        device_map='auto'
     )
 
     loraConfig = peft.LoraConfig(
