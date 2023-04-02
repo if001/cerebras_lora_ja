@@ -7,12 +7,17 @@ import fire
 cutoff_len = 512
 
 
+def generate_prompt(entry):
+    if entry['input']:
+        return f"User: {entry['instruction']}: {entry['input']}\n\nAssistant: {entry['output']}"
+    else:
+        return f"User: {entry['instruction']}\n\nAssistant: {entry['output']}"
 
 def make_dataset(tokenizer, data_file):
     def tokenize(item, add_eos_token=True):
         print('item', item)
         result = tokenizer(
-            item,
+            generate_prompt(item),
             truncation=True,
             max_length=cutoff_len,
             padding=False,
