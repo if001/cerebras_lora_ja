@@ -44,12 +44,13 @@ def make_dataset(tokenizer, data_file):
 def train(
         model_name: str,
         data_file: str,
-        output_dir: str
+        output_dir: str,
+        resume: bool = False
         ):
     tokenizer = transformers.AutoTokenizer.from_pretrained(model_name)
     tokenizer.pad_token_id = 0
     train_data, val_data = make_dataset(tokenizer, data_file)
-  
+    
     model = transformers.AutoModelForCausalLM.from_pretrained(
         model_name,        
         load_in_8bit=True,
@@ -97,7 +98,7 @@ def train(
     )
 
     model.config.use_cache = False    
-    trainer.train()
+    trainer.train(resume_from_checkpoint=resume)
     model.save_pretrained(output_dir)
 
 
