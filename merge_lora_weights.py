@@ -7,27 +7,26 @@ import fire
 
 def merge_weights(
         base_model: str,
-        model_name: str,
+        lora_weights: str,
         output_dir: str
-        ):
-
-    tokenizer = transformers.AutoTokenizer.from_pretrained(base_model)
-    base_model = transformers.AutoModelForCausalLM.from_pretrained(
+    ):    
+    device_map={"": "cpu"}
+    model = transformers.AutoModelForCausalLM.from_pretrained(
         base_model,
         load_in_8bit=False,
         torch_dtype=torch.float16,
-        device_map={"": "cpu"},
+        device_map=device_map,
     )
-    first_weight = base_model.transformer.h[0].attn.c_attn.weight
+    first_weight = model.transformer.h[0].attn.c_attn.weight
     first_weight_old = first_weight.clone()
 
     lora_model = PeftModel.from_pretrained(
-        base_model,
-        model_name
-        device_map={"": "cpu"},
+        model,
+        lora_weights,
+        device_map=device_map,
         torch_dtype=torch.float16,
     )
-    lora_weight = lora_model.base_model.transformer.h[0].attn.c_attn.weight
+    # lora_weight = lora_model.base_model.transformer.h[0].attn.c_attn.weight
 
     assert torch.allclose(first_weight_old, first_weight)
 

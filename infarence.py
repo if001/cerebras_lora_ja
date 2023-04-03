@@ -3,6 +3,8 @@ import os
 import torch
 import transformers
 import fire
+from peft import PeftModel
+
 
 def generate_prompt(instruction, input=None):
     if input:
@@ -23,19 +25,40 @@ def generate_prompt(instruction, input=None):
 
 ### 応答:"""
 
+if torch.cuda.is_available():
+    device = "cuda"
+else:
+    device = "cpu"
+
 
 def infarence(
         model_name: str,
+        lora_weights: str,
         prompt: str,
         gpu: bool = True,        
     ):
-    tokenizer = transformers.AutoTokenizer.from_pretrained(model_name)
-    model = transformers.AutoModelForCausalLM.from_pretrained(
-        model_name,
-        load_in_8bit=True,
-        torch_dtype=torch.float16,
-        device_map={"": 0},
-    )
+    tokenizer = transformers.AutoTokenizer.from_pretrained(model_name)    
+    if device == 'cuda':        
+        model = transformers.AutoModelForCausalLM.from_pretrained(
+            model_name,
+            load_in_8bit=True,
+            torch_dtype=torch.float16,
+            device_map="auto",
+        )
+        model = PeftModel.from_pretrained(
+            model,
+            lora_weights,
+            torch_dtype=torch.float16,
+        )
+    else:        
+        model = transformers.AutoModelForCausalLM.from_pretrained(
+            model_name, device_map={"": device}, low_cpu_mem_usage=True
+        )
+        model = PeftModel.from_pretrained(
+            model,
+            lora_weights,
+            device_map={"": device},
+        )
 
     prompt = generate_prompt(prompt)
     input_ids = tokenizer.encode(prompt, return_tensors="pt")
