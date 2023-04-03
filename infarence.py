@@ -2,7 +2,7 @@ import os
 
 import torch
 import transformers
-from fire
+import fire
 
 def generate_prompt(instruction, input=None):
     if input:
