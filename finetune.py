@@ -72,7 +72,7 @@ def train(
     model = peft.get_peft_model(model, loraConfig)
 
     training_args = transformers.TrainingArguments(
-        per_device_train_batch_size=32, 
+        per_device_train_batch_size=8,
         gradient_accumulation_steps=4,  
         num_train_epochs=3,  
         learning_rate=1e-4, 
